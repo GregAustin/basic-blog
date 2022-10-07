@@ -1,0 +1,19 @@
+.user-item {
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.user-item__content {
+  border: none;
+}
+.user-item a {
+  padding: 1rem;
+  color: white;
+  background: #244634;
+  text-decoration: none;
+}
+
+.user-item a:hover,
+.user-item a:active {
+  background: #396e52;
+}

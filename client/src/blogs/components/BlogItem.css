@@ -1,0 +1,21 @@
+.blog-item {
+  border-radius: 8px;
+  border: none;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.192);
+}
+
+.blog-item__content {
+  background-color: beige;
+}
+
+.blog-item__actions {
+  text-align: center;
+  border-top: 1px solid #ccc;
+  padding-top: 1rem;
+}
+
+.blog-item__actions button,
+.blog-item__actions a {
+  margin-left: 0.5rem;
+  margin-right: 0.5rem;
+}

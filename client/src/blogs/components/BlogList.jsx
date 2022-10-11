@@ -1,5 +1,3 @@
-//import './BlogList.css';
-
 import BlogItem from './BlogItem';
 import Button from 'react-bootstrap/Button';
 import Card from 'react-bootstrap/Card';
@@ -24,7 +22,16 @@ const BlogList = (props) => {
   return (
     <Col className='blog-list'>
       {items.map((blog) => {
-        return <BlogItem key={blog.id} id={blog.id} title={blog.title} text={blog.text} creatorId={blog.creator} />;
+        return (
+          <BlogItem
+            key={blog.id}
+            id={blog.id}
+            title={blog.title}
+            text={blog.text}
+            creatorId={blog.creator}
+            onDelete={props.onDeleteBlog}
+          />
+        );
       })}
     </Col>
   );

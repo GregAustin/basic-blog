@@ -1,9 +1,7 @@
-// import './UsersList.css';
-
+import Card from 'react-bootstrap/Card';
 import Col from 'react-bootstrap/Col';
 import React from 'react';
 import UserItem from './UserItem';
-import Card from 'react-bootstrap/Card';
 
 const UsersList = (props) => {
   const { items } = props;
@@ -22,7 +20,7 @@ const UsersList = (props) => {
   return (
     <Col>
       {items.map((user) => {
-        return <UserItem key={user.id} id={user.id} name={user.name} description={user.description} />;
+        return <UserItem key={user.id} id={user.id} name={user.name} numBlogs={user.blogs.length} />;
       })}
     </Col>
   );

@@ -1,52 +1,127 @@
-import './UpdateBlog.css';
+import { Controller, useForm } from 'react-hook-form';
+import React, { useContext, useState } from 'react';
 
-import React from 'react';
+import { AuthContext } from '../../shared/context/auth-context';
+import Button from 'react-bootstrap/Button';
+import Container from 'react-bootstrap/Container';
+import Form from 'react-bootstrap/Form';
+import LoadingSpinner from '../../shared/components/ui/LoadingSpinner';
+import ModalOverlay from '../../shared/components/ui/ModalOverlay';
+import { useEffect } from 'react';
+import { useHttpClient } from '../../shared/hooks/http-hook';
+import { useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 
-const DUMMY_BLOGS = [
-  {
-    id: 'b1',
-    title: 'Test blog 1',
-    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin consectetur condimentum malesuada. Nullam aliquam lacinia nunc, at ultrices massa cursus et. Curabitur vel gravida massa. Aliquam erat volutpat. Pellentesque in eros orci. Morbi gravida dictum dignissim. Curabitur molestie eros vitae quam porttitor, eu tincidunt nunc maximus. Duis non tincidunt erat, ut vulputate tellus.',
-    creator: 'u1',
-  },
-  {
-    id: 'b2',
-    title: 'Test blog 2',
-    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin consectetur condimentum malesuada. Nullam aliquam lacinia nunc, at ultrices massa cursus et. Curabitur vel gravida massa. Aliquam erat volutpat. Pellentesque in eros orci. Morbi gravida dictum dignissim. Curabitur molestie eros vitae quam porttitor, eu tincidunt nunc maximus. Duis non tincidunt erat, ut vulputate tellus.',
-    creator: 'u2',
-  },
-  {
-    id: 'b3',
-    title: 'Test blog 3',
-    text: 'Proin ut luctus nulla. Sed sollicitudin eros id ligula vestibulum, et egestas felis tincidunt. Aenean enim lorem, tristique nec fringilla at, auctor id libero. Sed eget posuere nunc, non posuere nibh. Pellentesque viverra lacus odio, eget ornare nulla molestie quis. Nulla condimentum dictum orci, eget mattis leo semper eu. Vivamus lobortis magna ut nulla eleifend commodo. Fusce eget pellentesque est. Aliquam aliquam dolor in lacus vehicula, a interdum turpis tincidunt. Nunc aliquam odio mauris, eu pellentesque augue vehicula mattis. Sed luctus ipsum sed ornare rutrum. Phasellus et velit sit amet nisi lacinia euismod posuere quis quam. Fusce laoreet tortor lectus, eu hendrerit purus elementum eget. Praesent eget venenatis enim, nec convallis massa.',
-    creator: 'u1',
-  },
-  {
-    id: 'b4',
-    title: 'Test blog 4',
-    text: 'Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia curae; Suspendisse a ligula fermentum lorem ullamcorper consectetur id vitae neque. Donec eu eros et urna accumsan dignissim et id purus. Proin eu vehicula sapien. Vivamus lacinia orci ut leo efficitur, eget auctor dolor dignissim. Praesent vulputate quam lectus, vitae varius nisi ornare sit amet. Sed dictum porta sem et gravida. Sed aliquam est eu molestie convallis. Praesent rutrum tellus ut accumsan interdum. Aliquam sed risus in sem rutrum sollicitudin. Integer vestibulum, orci nec fermentum interdum, dui ante finibus quam, non varius diam massa placerat sapien. Nullam ullamcorper aliquet dui, et sodales justo placerat ut. Nunc euismod nibh quis sapien tristique, quis varius enim luctus. Aliquam erat volutpat. Proin arcu lorem, interdum pretium elit eget, suscipit sodales ante. Nam convallis, nisi a rutrum lobortis, arcu massa sagittis lacus, sed suscipit arcu lectus id augue.',
-    creator: 'u1',
-  },
-  {
-    id: 'b5',
-    title: 'Test blog 5',
-    text: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin consectetur condimentum malesuada. Nullam aliquam lacinia nunc, at ultrices massa cursus et. Curabitur vel gravida massa. Aliquam erat volutpat. Pellentesque in eros orci. Morbi gravida dictum dignissim. Curabitur molestie eros vitae quam porttitor, eu tincidunt nunc maximus. Duis non tincidunt erat, ut vulputate tellus.',
-    creator: 'u1',
-  },
-];
 const UpdateBlog = () => {
+  const auth = useContext(AuthContext);
+  const navigate = useNavigate();
   const { blogId } = useParams();
-  const foundBlog = DUMMY_BLOGS.find((blog) => blog.id === blogId);
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const {
+    handleSubmit,
+    setValue,
+    control,
+    formState: { errors },
+  } = useForm();
 
-  if (!foundBlog) {
+  const [loadedBlog, setLoadedBlog] = useState();
+  const [modalShow, setModalShow] = useState(false);
+
+  // Get blog data to show to user.
+  useEffect(() => {
+    const fetchBlog = async () => {
+      try {
+        const responseData = await sendRequest(process.env.REACT_APP_SERVER_URL + `/blogs/${blogId}`);
+
+        if (responseData && responseData.blog) {
+          setLoadedBlog(responseData.blog);
+          setValue('titlefield', responseData.blog.title);
+          setValue('textfield', responseData.blog.text);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    fetchBlog();
+  }, [sendRequest, blogId]);
+
+  // Send update request
+  const onSubmit = async (data) => {
+    try {
+      await sendRequest(
+        process.env.REACT_APP_SERVER_URL + `/blogs/${blogId}`,
+        'PATCH',
+        JSON.stringify({
+          title: data.titlefield,
+          text: data.textfield,
+        }),
+        { 'Content-Type': 'application/json', Authorization: `Bearer ${auth.token}` }
+      );
+      navigate(`/${auth.userId}/blogs`);
+    } catch (err) {
+      setModalShow(true);
+    }
+  };
+
+  const handleModalClose = () => {
+    clearError();
+    setModalShow(false);
+  };
+
+  if (!loadedBlog) {
     return (
-      <div className='center'>
-        <h2>Cound not find blog.</h2>
-      </div>
+      <>
+        {isLoading && <LoadingSpinner />}
+        <div>Could not find blog.</div>
+      </>
     );
   }
-  return <div>UpdateBlog</div>;
+  return (
+    <>
+      <ModalOverlay show={modalShow} onHide={handleModalClose} text={error} title={'An error has occured.'} />
+      <Container>
+        {isLoading && <LoadingSpinner />}
+        <h2>Update your blog.</h2>
+        <Form onSubmit={handleSubmit(onSubmit)} className='blog-form'>
+          <Form.Group className='mb-3' controlId='formBlogTitle'>
+            <Form.Label>Blog title</Form.Label>
+            <Controller
+              name='titlefield'
+              defaultValue=''
+              control={control}
+              rules={{ required: 'Blog must have a title.' }}
+              render={({ field }) => (
+                <Form.Control {...field} type='text' isInvalid={errors.titlefield} placeholder='Enter blog title.' />
+              )}
+            />
+            <Form.Control.Feedback type='invalid'>{errors.titlefield?.message}</Form.Control.Feedback>
+          </Form.Group>
+          <Form.Group className='mb-3' controlId='formBlogtext'>
+            <Form.Label>Blog Content</Form.Label>
+            <Controller
+              name='textfield'
+              defaultValue=''
+              control={control}
+              rules={{ required: 'Blog has no content.' }}
+              render={({ field }) => (
+                <Form.Control
+                  {...field}
+                  as='textarea'
+                  rows={8}
+                  isInvalid={errors.textfield}
+                  placeholder='Enter blog content.'
+                />
+              )}
+            />
+            <Form.Control.Feedback type='invalid'>{errors.textfield?.message}</Form.Control.Feedback>
+          </Form.Group>
+          <Button variant='primary' type='submit'>
+            Save
+          </Button>
+        </Form>
+      </Container>
+    </>
+  );
 };
 
 export default UpdateBlog;

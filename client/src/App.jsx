@@ -1,16 +1,17 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
-
+import React, { Suspense } from 'react';
 import { Navigate, RouterProvider, createBrowserRouter } from 'react-router-dom';
 
-import Auth from './users/pages/Auth';
 import { AuthContext } from './shared/context/auth-context';
-import MainNavigation from './shared/components/navigation/MainNavigation';
-import NewBlog from './blogs/pages/NewBlog';
-import React from 'react';
-import UpdateBlog from './blogs/pages/UpdateBlog';
-import UserBlogs from './blogs/pages/UserBlogs';
-import Users from './users/pages/Users';
 import { useAuth } from './shared/hooks/auth-hook';
+import MainNavigation from './shared/components/navigation/MainNavigation';
+import LoadingSpinner from './shared/components/ui/LoadingSpinner';
+
+const Users = React.lazy(() => import('./users/pages/Users'));
+const UserBlogs = React.lazy(() => import('./blogs/pages/UserBlogs'));
+const UpdateBlog = React.lazy(() => import('./blogs/pages/UpdateBlog'));
+const NewBlog = React.lazy(() => import('./blogs/pages/NewBlog'));
+const Auth = React.lazy(() => import('./users/pages/Auth'));
 
 const App = () => {
   const { token, login, logout, userId } = useAuth();
@@ -74,7 +75,15 @@ const App = () => {
 
   return (
     <AuthContext.Provider value={{ isLoggedIn: !!token, login, logout, userId, token }}>
-      <RouterProvider router={router} />
+      <Suspense
+        fallback={
+          <div className='center'>
+            <LoadingSpinner />
+          </div>
+        }
+      >
+        <RouterProvider router={router} />
+      </Suspense>
     </AuthContext.Provider>
   );
 };

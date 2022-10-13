@@ -5,6 +5,7 @@ services:
     ports:
       - '80:80'
     environment:
+      - PORT=80
       - API_URL=http://host.docker.internal:5000
     container_name: frontend
     restart: always

@@ -36,7 +36,7 @@ app.use('/api/users', usersRoutes);
 // Error handling middleware. Note: placed after other routes so is only reached if no response has been sent yet.
 app.use((req, res, next) => {
   // Add error so that error handling below will be triggered.
-  const error = new HttpError('Could not find this route.', 404);
+  const error = new HttpError('Could not find this route: ' + req.url, 404);
   throw error;
 });
 

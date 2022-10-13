@@ -34,7 +34,7 @@ const Auth = () => {
       // Login request
       try {
         const responseData = await sendRequest(
-          process.env.REACT_APP_SERVER_URL + '/users/login',
+          '/api/users/login',
           'POST',
           JSON.stringify({
             email: data.emailfield,
@@ -53,7 +53,7 @@ const Auth = () => {
       // Sign up request
       try {
         const responseData = await sendRequest(
-          process.env.REACT_APP_SERVER_URL + '/users/signup',
+          '/api/users/signup',
           'POST',
           JSON.stringify({
             name: data.namefield,

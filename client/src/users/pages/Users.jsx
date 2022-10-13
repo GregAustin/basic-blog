@@ -15,7 +15,7 @@ const Users = () => {
     // Async request as its own function so we can avoid making the whole useEffect function async.
     const fetchUsers = async () => {
       try {
-        const responseData = await sendRequest(process.env.REACT_APP_SERVER_URL + '/users');
+        const responseData = await sendRequest('/api/users');
         if (responseData) {
           setLoadedUsers(responseData.users);
         }

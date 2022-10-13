@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const path = require('path');
 require('dotenv').config();
 
 const HttpError = require('./models/http-error');
@@ -11,7 +12,10 @@ const app = express();
 
 app.use(bodyParser.json());
 
-// Middleware to set headers
+// Serve front end static content from public dir. Only needed if API server is also web server.
+// app.use(express.static(path.join('public')));
+
+// Middleware to set headers. Needed if client and server are on separate hosts.
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
@@ -21,6 +25,13 @@ app.use((req, res, next) => {
 
 app.use('/api/blogs', blogRoutes);
 app.use('/api/users', usersRoutes);
+
+// Serve index.html on any route that isn't covered by the preceding middleware.
+// This is so we can still load index.html on routes other than '/' (e.g. if we refresh on '/auth').
+// Only needed if API server is also web server.
+// app.use((req, res, next) => {
+//   res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
+// });
 
 // Error handling middleware. Note: placed after other routes so is only reached if no response has been sent yet.
 app.use((req, res, next) => {

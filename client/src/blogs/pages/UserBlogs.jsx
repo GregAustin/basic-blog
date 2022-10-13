@@ -16,7 +16,7 @@ const UserBlogs = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const responseData = await sendRequest(process.env.REACT_APP_SERVER_URL + `/blogs/user/${userId}`);
+        const responseData = await sendRequest(`/api/blogs/user/${userId}`);
 
         if (responseData && responseData.blogs) {
           setLoadedBlogs(responseData.blogs);

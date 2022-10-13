@@ -31,7 +31,7 @@ const UpdateBlog = () => {
   useEffect(() => {
     const fetchBlog = async () => {
       try {
-        const responseData = await sendRequest(process.env.REACT_APP_SERVER_URL + `/blogs/${blogId}`);
+        const responseData = await sendRequest(`/api/blogs/${blogId}`);
 
         if (responseData && responseData.blog) {
           setLoadedBlog(responseData.blog);
@@ -49,7 +49,7 @@ const UpdateBlog = () => {
   const onSubmit = async (data) => {
     try {
       await sendRequest(
-        process.env.REACT_APP_SERVER_URL + `/blogs/${blogId}`,
+        `/api/blogs/${blogId}`,
         'PATCH',
         JSON.stringify({
           title: data.titlefield,

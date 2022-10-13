@@ -25,7 +25,7 @@ const NewBlog = () => {
   const onSubmit = async (data) => {
     try {
       await sendRequest(
-        process.env.REACT_APP_SERVER_URL + '/blogs',
+        '/api/blogs',
         'POST',
         JSON.stringify({
           title: data.titlefield,

@@ -19,7 +19,7 @@ const BlogItem = (props) => {
 
   const onSubmit = async (data) => {
     try {
-      await sendRequest(process.env.REACT_APP_SERVER_URL + `/blogs/${props.id}`, 'DELETE', null, {
+      await sendRequest(`/api/blogs/${props.id}`, 'DELETE', null, {
         Authorization: `Bearer ${auth.token}`,
       });
       props.onDelete(props.id);

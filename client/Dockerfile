@@ -10,13 +10,28 @@ COPY . .
 
 RUN npm run build
 
-# Nginx image for our web server
-FROM nginx:stable-alpine
+# Alpine image for our web server
+FROM alpine:3.17.3
 
-# Create a template config. Nginx image allows us to replace environment variables in this file.
-COPY nginx.conf /etc/nginx/templates/default.conf.template
+# Install nginx & gettext to use envsubst
+RUN apk upgrade --no-cache  \
+&& apk add --no-cache nginx  \
+&& apk add --no-cache gettext
+
+# Install headers-more to allow us to hide server headers
+RUN apk add nginx-mod-http-headers-more
+
+# Copy start script
+COPY start-up.sh /usr/bin
+
+# Copy nginx config over to template config.
+COPY nginx.conf /tmp/nginx.conf.template
+
+# Set access for start script
+RUN chmod 755 /usr/bin/start-up.sh
 
 # Copy static files to new container.
-COPY --from=builder /web/build /usr/share/nginx/html
+COPY --from=builder /web/build /usr/share/nginx/html/
 
-CMD ["nginx", "-g", "daemon off;"]
+# Run startup script
+CMD ["/usr/bin/start-up.sh"]
